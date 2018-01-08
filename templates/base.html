@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{{title}}</title>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('bloglistinglink') }}">Main Blog</a></li>
+                <li><a href="{{ url_for('new_blog') }}">Add blog</a></li>
+                
+                
+            </ul>
+       </nav>
+    </head>
+<body>
+    {% block content %}
+    
+    {% endblock %}
+
+</body>
+</html>
