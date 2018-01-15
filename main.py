@@ -41,10 +41,11 @@ class User(db.Model):
     
     @app.before_request
     def require_login():
-        allowed_routes = ['login', 'signup']
+        allowed_routes = ['login', 'signup', 'index', 'allpost']
         if request.endpoint not in allowed_routes and 'username' not in session:
             return redirect('/login')
-
+    
+    # login function
     @app.route('/login', methods=['POST', 'GET'])
     def login():
 
@@ -57,6 +58,7 @@ class User(db.Model):
             #db.session.commit()
             
             user_datas = User.query.filter_by(username = new_user.username).all()
+            #user_datas = User.query.filter_by(username = new_user.username).all()
             
             if user_datas != None:
                 #username_db = User.query.filter_by(username=username).first()
@@ -80,9 +82,7 @@ class User(db.Model):
             return render_template('login.html')
 
 
-
-
-#usersignup
+    # new usersignup
     @app.route('/signup', methods=['POST', 'GET'])
     def signup():
         if request.method == 'POST':
@@ -109,12 +109,12 @@ class User(db.Model):
 
         if request.method == 'GET':
             return render_template('signup.html')
-      
-    @app.route('/', methods=['POST', 'GET'])
-    def index():
-        if request.method == 'GET':
-            users = User.query.all()
-            return render_template('users.html', users=users)
+#step1     
+@app.route('/', methods=['POST', 'GET'])
+def index():
+    if request.method == 'GET':
+        users = User.query.all()
+        return render_template('users.html', users=users)
 
     # @app.route('/', methods=['POST', 'GET'])
     # def index():
@@ -136,62 +136,68 @@ class User(db.Model):
     #             #completed_tasks = Blog.query.filter_by(completed=True).all()
     #         return render_template('allpost.html', tasks=tasks)
 
-    @app.route('/new_post', methods=['POST', 'GET'])
-    def new_blog():
-        title_name = "" 
-        if request.method == 'POST':
-            title_name = request.form['title']
-            blog_content = request.form['blog-content']
-            
-            new_blog = Blog(title_name, blog_content, session['userid'])
-            db.session.add(new_blog)
-            db.session.commit()
-
-            tasks = Blog.query.filter_by(completed=False).all()
-            #completed_tasks = Blog.query.filter_by(completed=True).all()
-                    #return render_template('allpost.html', tasks=tasks)
-            obj = Blog.query.order_by(Blog.id.desc()).first()
+#add new post function
+@app.route('/new_post', methods=['POST', 'GET'])
+def new_blog():
+    title_name = "" 
+    if request.method == 'POST':
+        title_name = request.form['title']
+        blog_content = request.form['blog-content']
         
-            most_recent_idx=obj.id
-            return redirect(url_for('blogbyid',blog_id=most_recent_idx))
-            
-        if request.method == 'GET':
-            
-            #completed_tasks = Blog.query.filter_by(completed=True).all()
-            return render_template('new_post.html')
+        new_blog = Blog(title_name, blog_content, session['userid'])
+        db.session.add(new_blog)
+        db.session.commit()
+
+        tasks = Blog.query.filter_by(completed=False).all()
+        #completed_tasks = Blog.query.filter_by(completed=True).all()
+                #return render_template('allpost.html', tasks=tasks)
+        obj = Blog.query.order_by(Blog.id.desc()).first()
+    
+        most_recent_idx=obj.id
+        return redirect(url_for('blog',id=most_recent_idx))
         
-    @app.route('/blog')
-    def blog():
+    if request.method == 'GET':
+        
+        #completed_tasks = Blog.query.filter_by(completed=True).all()
+        return render_template('new_post.html')
 
-        username = request.args.get('username')
-        if username != None:
-           user_tasks = User.query.filter_by(username = username).first()
-           user_id = user_tasks.id
-           tasks = Blog.query.filter_by(owner_id = user_id).all()
-            
-            #completed_tasks = Blog.query.filter_by(completed=True).all()
-           return render_template('/userbloglist.html', tasks=tasks, username =username)  
+#step2(gets username/user id from the link)    
+@app.route('/blog')
+def blog():
+    #handles username part
+    username = request.args.get('username')
+    if username != None:
+        user_tasks = User.query.filter_by(username = username).first()
+        user_id = user_tasks.id
+        tasks = Blog.query.filter_by(owner_id = user_id).all()
+        
+        #completed_tasks = Blog.query.filter_by(completed=True).all()
+        return render_template('/userbloglist.html', tasks=tasks, username =username)  
+    
+    #handles id part
+    blog_id = request.args.get('id')
+    tasks = Blog.query.filter_by(id = blog_id).all()
+    users = User.query.all()
+    #return '404 - hI Template not found'
+    #url_text = urlencode("/blogcontent.html?blogid=")
+    return render_template('/blogcontent.html', tasks=tasks, users=users)
 
-        blog_id = request.args.get('id')
-        tasks = Blog.query.filter_by(id = blog_id).all()
+#step3 Displays all post by all users
+@app.route('/allpost', methods=['GET', 'POST'])
+def allpost():
+    if request.method == 'GET':
+        tasks = Blog.query.filter_by(completed=False).all()
         users = User.query.all()
-        #return '404 - hI Template not found'
-        #url_text = urlencode("/blogcontent.html?blogid=")
-        return render_template('/blogcontent.html', tasks=tasks, users=users)
+        return render_template('/allpost.html', tasks=tasks, users=users)
+#-------------------------------------------------------------------
 
-    @app.route('/allpost', methods=['GET', 'POST'])
-    def allpost():
-        if request.method == 'GET':
-            tasks = Blog.query.filter_by(completed=False).all()
-            users = User.query.all()
-            return render_template('/allpost.html', tasks=tasks, users=users)
-    #-------------------------------------------------------------------
+#logout function
+@app.route('/logout')
+def logout():
+    del session['username']
+    return redirect('/allpost')
 
-    @app.route('/logout')
-    def logout():
-        del session['username']
-        return redirect('/allpost')
-
+#helper functions
 def validate_user_signup(username, password, verify_password):
     username_error = validate_username(username)
     password_error = validate_password(password)
@@ -207,13 +213,7 @@ def validate_user_signup(username, password, verify_password):
          return pwd_mismatch_error
     else:
         None
-#signup url here
-        # return render_template('signup.html',
-        #         username_error = username_error,
-        #         password_error = password_error,
-        #         pwd_mismatch_error = pwd_mismatch_error)
-#add return statement
-#return render_template('signup.html'')
+
 
 
 def validate_username(username):
