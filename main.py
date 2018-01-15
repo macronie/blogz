@@ -162,29 +162,31 @@ class User(db.Model):
         
     @app.route('/blog')
     def blog():
-        blog_id = request.args.get('id', '')
-        if blog_id != 0:
+
+        username = request.args.get('username')
+        user_tasks = User.query.filter_by(username = username).first()
+        user_id = user_tasks.id
+        tasks = Blog.query.filter_by(owner_id = user_id).all()
+        
+        #completed_tasks = Blog.query.filter_by(completed=True).all()
+        return render_template('/userbloglist.html', tasks=tasks, username =username)  
+
+    @app.route('/blogbyid')
+    def blogbyid():
+
+        blog_id = request.args.get('id')
         #return 'User %s' % blog_id
         #blog_id = int(request.GET.get('task.id')) 
         #return '404 - Template not found'
         #if request.method == 'GET':
             #blogId = blog_id#request.POST.get('val')
             #task = Blog.query.get(blog_id)
-            tasks = Blog.query.filter_by(id = blog_id).all()
-            users = User.query.all()
-            #return '404 - hI Template not found'
-            #url_text = urlencode("/blogcontent.html?blogid=")
-            return render_template('/blogcontent.html', tasks=tasks, users=users)
+        tasks = Blog.query.filter_by(id = blog_id).all()
+        users = User.query.all()
+        #return '404 - hI Template not found'
+        #url_text = urlencode("/blogcontent.html?blogid=")
+        return render_template('/blogcontent.html', tasks=tasks, users=users)
 
-        username = request.args.get('username')
-        if username != None:
-            user_tasks = User.query.filter_by(username = username).first()
-            user_id = user_tasks.id
-            tasks = Blog.query.filter_by(owner_id = user_id).all()
-            
-            #completed_tasks = Blog.query.filter_by(completed=True).all()
-            return render_template('/userbloglist.html', tasks=tasks, username =username)  
-    
     @app.route('/allpost', methods=['GET', 'POST'])
     def allpost():
         if request.method == 'GET':
