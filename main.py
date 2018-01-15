@@ -164,23 +164,15 @@ class User(db.Model):
     def blog():
 
         username = request.args.get('username')
-        user_tasks = User.query.filter_by(username = username).first()
-        user_id = user_tasks.id
-        tasks = Blog.query.filter_by(owner_id = user_id).all()
-        
-        #completed_tasks = Blog.query.filter_by(completed=True).all()
-        return render_template('/userbloglist.html', tasks=tasks, username =username)  
-
-    @app.route('/blogbyid')
-    def blogbyid():
+        if username != None:
+           user_tasks = User.query.filter_by(username = username).first()
+           user_id = user_tasks.id
+           tasks = Blog.query.filter_by(owner_id = user_id).all()
+            
+            #completed_tasks = Blog.query.filter_by(completed=True).all()
+           return render_template('/userbloglist.html', tasks=tasks, username =username)  
 
         blog_id = request.args.get('id')
-        #return 'User %s' % blog_id
-        #blog_id = int(request.GET.get('task.id')) 
-        #return '404 - Template not found'
-        #if request.method == 'GET':
-            #blogId = blog_id#request.POST.get('val')
-            #task = Blog.query.get(blog_id)
         tasks = Blog.query.filter_by(id = blog_id).all()
         users = User.query.all()
         #return '404 - hI Template not found'
