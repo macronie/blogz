@@ -7,9 +7,9 @@
 
         
             {% for task in tasks %}
-                <a href="{{ url_for('blogcontent', blog_id=task.id) }}">{{task.title}}</a>
+                <a href="{{ url_for('blog', blog_id=task.id) }}">{{task.title}}</a>
                 <p>{{task.body}}</p>
-                
+                <p>written by <a href="{{ url_for('blog', username = user) }}">{{user}}</a></p>
             <br>
             {% endfor %}
         

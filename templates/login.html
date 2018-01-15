@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Login</h1>
+    <form method='post'>
+        <!--<p> here is my debug: {{var, var1}} </p>-->
+        <p>
+        <label>
+            Username:
+            <input type="text" name='username' />
+        </label>
+        </p>
+        <p>
+        <label>
+            Password:
+            <input type="password" name='password'  />
+        </label>
+        </p>
+        <p>
+        <input type="submit" value='login' />
+        </p>
+        <p>
+            If you dont have an account please <a href="{{ url_for('signup') }}">signup</a> here.
+        </p>
+    </form>
+
+    <hr />
+
+ 
+{% endblock %}

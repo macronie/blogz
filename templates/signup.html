@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Sign Up</h1>
+    <form method='post'>
+        <p>
+        <label>
+            Username:
+            <input type="text" name='username' />
+            <!--<p class="error">{{username_error}}</p>-->
+        </label>
+        </p>
+        <p>
+        <label>
+            Password:
+            <input type="password" name='password'  />
+            <!--<p class="error">{{password_error}}</p>-->
+        </label>
+        </p>
+        <p>
+        <label>
+            Verify Password:
+            <input type="password" name='ver_pwd'  />
+            <!--<p class="error">{{pwd_mismatch_error}}</p>-->
+        </label>
+        </p>
+        <p>
+        <input type="submit" value='signup' />
+        </p>
+        <p class="error">{{error}}</p>
+    </form>
+
+    <hr />
+
+ 
+{% endblock %}
