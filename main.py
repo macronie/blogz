@@ -41,14 +41,14 @@ class User(db.Model):
     
     @app.before_request
     def require_login():
-        allowed_routes = ['login', 'signup', 'index', 'allpost']
+        allowed_routes = ['login', 'signup', 'index', 'allpost', 'blog']
         if request.endpoint not in allowed_routes and 'username' not in session:
             return redirect('/login')
     
     # login function
     @app.route('/login', methods=['POST', 'GET'])
     def login():
-
+        login_error=None
         if request.method == 'POST':
             username = request.form['username']
             password = request.form['password']
@@ -56,30 +56,36 @@ class User(db.Model):
             new_user = User(username, password)
             #db.session.add(new_user)
             #db.session.commit()
-            
-            user_datas = User.query.filter_by(username = new_user.username).all()
+
+            user_datas = User.query.filter_by(username = new_user.username).first()
             #user_datas = User.query.filter_by(username = new_user.username).all()
             
             if user_datas != None:
                 #username_db = User.query.filter_by(username=username).first()
                 #password_db = User.query.filter_by(password=password).first()
-                username_db = user_datas[0].username
-                password_db = user_datas[0].password
+                username_db = user_datas.username
+                password_db = user_datas.password
                 user_side_username = username
                 user_side_password = password
+                user_name_error=False
+                login_error=None
                 #return '<h>DB error</h1>'
                 #return render_template('login.html', var=username_db, var1=password_db)
                 if (password_db == user_side_password) and (username_db == user_side_username):
                     session['username'] = user_side_username
-                    session['userid'] = user_datas[0].id
+                    session['userid'] = user_datas.id
                     return redirect(url_for('new_blog'))
                 else:
-                    return render_template('login.html', var=username_db, var1=password_db)
+                    if (password_db != user_side_password):
+                        login_error='Invalid password'
+                    else:
+                        login_error = 'Invalid User'
+                    return render_template('login.html', login_error=login_error)
             else:
-                return render_template('login.html', var=username_db, var1=password_db)
+                return render_template('login.html',login_error='Invalid User')
         if request.method == 'GET':
             #return '<h1>login error</h1>'
-            return render_template('login.html')
+            return render_template('login.html', login_error=login_error)
 
 
     # new usersignup

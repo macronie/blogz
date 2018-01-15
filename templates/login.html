@@ -20,6 +20,9 @@
         <input type="submit" value='login' />
         </p>
         <p>
+                {%if login_error != None %}
+                <h4> {{login_error}} </h4>
+                {% endif %}
             If you dont have an account please <a href="{{ url_for('signup') }}">signup</a> here.
         </p>
     </form>
