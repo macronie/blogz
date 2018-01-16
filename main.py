@@ -110,7 +110,7 @@ class User(db.Model):
                     session['username'] = username
                     return render_template('new_post.html')
                 else:
-                    return "<h1>Username exists</h1>"
+                    return render_template('signup.html',error = 'Username exist')
 
             return render_template('signup.html',error = error_text)
 
