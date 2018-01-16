@@ -1,6 +1,7 @@
 from flask import Flask, request, redirect, render_template, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from urllib.parse import urlencode
+import cgi
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -146,22 +147,33 @@ def index():
 @app.route('/new_post', methods=['POST', 'GET'])
 def new_blog():
     title_name = "" 
+    title_name = cgi.escape(title_name, quote=True)
+    add_error=""
+    add_error = cgi.escape(add_error, quote=True)
+    blog_content=""
+    blog_content = cgi.escape(blog_content, quote=True) 
     if request.method == 'POST':
         title_name = request.form['title']
         blog_content = request.form['blog-content']
-        
-        new_blog = Blog(title_name, blog_content, session['userid'])
-        db.session.add(new_blog)
-        db.session.commit()
+        if title_name and blog_content:
+            new_blog = Blog(title_name, blog_content, session['userid'])
+            db.session.add(new_blog)
+            db.session.commit()
 
-        tasks = Blog.query.filter_by(completed=False).all()
-        #completed_tasks = Blog.query.filter_by(completed=True).all()
-                #return render_template('allpost.html', tasks=tasks)
-        obj = Blog.query.order_by(Blog.id.desc()).first()
-    
-        most_recent_idx=obj.id
-        return redirect(url_for('blog',id=most_recent_idx))
+            tasks = Blog.query.filter_by(completed=False).all()
+            #completed_tasks = Blog.query.filter_by(completed=True).all()
+                    #return render_template('allpost.html', tasks=tasks)
+            obj = Blog.query.order_by(Blog.id.desc()).first()
         
+            most_recent_idx=obj.id
+            return redirect(url_for('blog',id=most_recent_idx))
+        else:
+            if(title_name):
+                add_error = 'Body cannot be blank'
+            else:
+                add_error = 'Title cannot be blank'
+            return render_template('new_post.html', title=request.form['title'], blog=request.form['blog-content'], error=add_error)
+    
     if request.method == 'GET':
         
         #completed_tasks = Blog.query.filter_by(completed=True).all()
