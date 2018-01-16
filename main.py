@@ -108,7 +108,7 @@ class User(db.Model):
                     db.session.add(new_user)
                     db.session.commit()
                     session['username'] = username
-                    return render_template('new_post.html')
+                    return redirect(url_for('new_blog'))
                 else:
                     return render_template('signup.html',error = 'Username exist')
 
